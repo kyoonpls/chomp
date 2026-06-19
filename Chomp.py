@@ -20,7 +20,7 @@ class Game:
             for col in range(self.numCols):
                 someRow.append(False)
             self.map.append(someRow)
-
+        self.moves = []
 
     def main(self):
         while self.running: #Infinite loop. We will do these things over and over on repeat until our self.running variable gets set to False.
@@ -45,6 +45,9 @@ class Game:
                 if event.key == pygame.K_r:
                     pass
     def makeMove(self, row, col):
+        self.moves.append((row, col))
+        print("moves so far:", self.moves) 
+        
         for R in range(row,self.numRows):
             for C in range(col,self.numCols):
                 self.map[R][C] = True
@@ -71,7 +74,19 @@ class Game:
                     notpressed = notpressed - 1
         return notpressed
 
-    
+    def pruneMoves(self, moves):
+   
+        moves.sort()
+
+        pruned = []
+        best_col = None
+
+        for row, col in moves:
+            if best_col is None or col < best_col:
+                pruned.append((row, col))
+                best_col = col
+
+        return pruned
     
 #This is the code that gets executed when we tell python to run this file.
 pygame.init() #Helps pygame start up, and sets up things like fonts
