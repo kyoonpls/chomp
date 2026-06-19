@@ -7,9 +7,14 @@ class Game:
         self.screen = pygame.display.set_mode((900, 900)) #Sets the size f the display in terms of number of pixels. Width, then height.
         self.clock = pygame.time.Clock() #Starts the gameclock, which sets the speed of the game.
         self.running = True #A variable we can use a switch to shut the game off if we need to.
-        self.numRows = 18
-        self.numCols = 9
+        with open("input.txt", 'r') as input_file:
+            lines = input_file.readlines()
+        print(lines)
+        print(lines[0].split())
+        self.numRows = int(lines[0].split()[0])
+        self.numCols = int(lines[0].split()[1])
         self.map = []
+        self.notpressed = self.numRows * self.numCols
         for row in range(self.numRows):
             someRow = []
             for col in range(self.numCols):
@@ -23,18 +28,28 @@ class Game:
             self.update() #Update all of the things that move/change
             self.draw() #Redraw the screen, since things may have moved/changed.
             self.clock.tick(60) #60FPS. This just tells python to wait. The game is only allowed to execute this line 60 times per second.
-            
+            if self.notpressed <= 1:
+                print("somonewon!")
+        
     def events(self): #When called, Game checks if any input (clicking the x button, hitting a specific key, etc) needs acting on, and acts on it.
         for event in pygame.event.get(): #For each event pygame has as occuring...
             if event.type == pygame.QUIT: #If that event is the type of event that comes when the user hits the x button....
                 self.running=False #Flips our switch to stop running the game. This closes the game, and the window.
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    row = event.pos[0] / 900    
-                    col = event.pos[1] / 900
-                    print(row, col)
-                    self.map[row][col] = True 
+                    row =int( event.pos[1] // (900//self.numRows))    
+                    col =int( event.pos[0] // (900//self.numCols))
+                    self.makeMove(row, col)
+                    print(self.numspace())
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    pass
+    def makeMove(self, row, col):
+        for R in range(row,self.numRows):
+            for C in range(col,self.numCols):
+                self.map[R][C] = True
 
+                
     def update(self):
         pass
 
@@ -42,15 +57,22 @@ class Game:
         self.screen.fill((0, 0, 0)) #black out the screen. This removes the last drawing we made, so we start with a fresh black canvas.
         for row in range(self.numRows):
             for col in range(self.numCols):
-                if map[row][col] == False:
-                    pygame.draw.rect(self.screen, (62, 200, 105), pygame.Rect(row * 900/self.numRows, col * 900/self.numCols, (900/self.numRows) -1, (900/self.numCols) -1 ))
+                if self.map[row][col] == False:
+                    pygame.draw.rect(self.screen, (62, 200, 105), pygame.Rect(col * 900/self.numCols, row * 900/self.numRows, (900/self.numCols) -1, (900/self.numRows) -1 ))
                 else:
-                    pygame.draw.rect(self.screen, (120, 220, 34), pygame.Rect(row * 900/self.numRows, col * 900/self.numCols, (900/self.numRows) -1, (900/self.numCols) -1 ))
-
-
-
+                    pygame.draw.rect(self.screen, (120, 220, 34), pygame.Rect(col * 900/self.numCols, row * 900/self.numRows, (900/self.numCols) -1, (900/self.numRows) -1 ))
         pygame.display.update()
+    
+    def numspace(self):
+        notpressed = self.numRows * self.numCols
+        for row in self.map:
+            for col in row:
+                if col == True:
+                    notpressed = notpressed - 1
+        return notpressed
 
+    
+    
 #This is the code that gets executed when we tell python to run this file.
 pygame.init() #Helps pygame start up, and sets up things like fonts
 game = Game() #First, we make a Game object, calling its constructor. We save it to a variable so can access it later.
