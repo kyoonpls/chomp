@@ -40,6 +40,7 @@ class Game:
                     row =int( event.pos[1] // (900//self.numRows))    
                     col =int( event.pos[0] // (900//self.numCols))
                     self.makeMove(row, col)
+                    print(self.pruneMoves(self.moves))
                     print(self.numspace())
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
@@ -74,15 +75,21 @@ class Game:
                     notpressed = notpressed - 1
         return notpressed
 
+    def sortKey(self,move):
+        return move[1]
+    
     def pruneMoves(self, moves):
-   
-        moves.sort()
-
+        
+        moves.sort(key = self.sortKey)
+        
         pruned = []
-        best_col = None
+        best_col = moves[0][1]
+
+    #   for move in moves:
+
 
         for row, col in moves:
-            if best_col is None or col < best_col:
+            if col < best_col:
                 pruned.append((row, col))
                 best_col = col
 
